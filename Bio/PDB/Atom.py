@@ -261,6 +261,35 @@ class Atom:
         """
         diff = self.coord - other.coord
         return np.sqrt(np.dot(diff, diff))
+    
+    def __mul__(self, other):
+        """Calculate multipled atom coordinate.
+
+        :param other: what to multiply
+        :type other: int, float, ndarray
+
+        Examples
+        --------
+        This is an incomplete but illustrative example::
+
+            operator_rotate_x = np.array([
+                [1, 0, 0],
+                [0, math.cos(theta), - math.sin(theta)],
+                [0, math.sin(theta), math.cos(theta)]
+            ])
+            new_atom = atom * operator_rotate_x
+
+        """
+        coord = self.get_coord()
+        new_atom = self.copy()
+        if (type(other) == np.ndarray or type(other) == list):
+            new_coord = np.dot(coord, other)
+            new_atom.set_coord(new_coord)
+        elif (type(other) == int or type(other) == float):
+            new_coord = coord * other
+            new_atom.set_coord(new_coord)
+        
+        return new_atom
 
     # set methods
 
