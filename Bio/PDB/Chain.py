@@ -11,7 +11,6 @@ from Bio.PDB.Entity import Entity
 from Bio.PDB.internal_coords import IC_Chain
 
 from typing import Optional
-import numpy as np
 
 class Chain(Entity):
     """Define Chain class.
