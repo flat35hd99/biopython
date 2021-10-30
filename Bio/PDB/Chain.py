@@ -11,7 +11,8 @@ from Bio.PDB.Entity import Entity
 from Bio.PDB.internal_coords import IC_Chain
 
 from typing import Optional
-
+import numpy as np
+import copy
 
 class Chain(Entity):
     """Define Chain class.
@@ -74,6 +75,45 @@ class Chain(Entity):
                 return self.id <= other.id
         else:
             return NotImplemented
+
+    def __mul__(self, other):
+        """Calculate multipled coordinates of atoms in chain.
+
+        :param other: what to multiply
+        :type other: int, float, ndarray
+
+        Examples
+        --------
+        This is an incomplete but illustrative example::
+
+            operator_rotate_x = np.array([
+                [1, 0, 0],
+                [0, math.cos(theta), - math.sin(theta)],
+                [0, math.sin(theta), math.cos(theta)]
+            ])
+            new_chain = chain * operator_rotate_x
+
+        """
+        atoms = list(self.get_atoms())
+        atoms_coord = [atom.get_coord() for atom in atoms]
+        new_atoms_coord = np.dot(atoms_coord, other)
+        new_chain = copy.deepcopy(self)
+
+        for residue in new_chain.get_list():
+            for atom in residue.get_list():
+                atom_id = atom.get_serial_number()
+                print(type(atom_id))
+                print(atom_id)
+                new_atom_coord = new_atoms_coord[atom_id]
+                new_atom = atom.copy()
+                new_atom.set_coord(new_atom_coord)
+                residue.detach_child(atom_id)
+                residue.add(new_atom)
+            residue_id = residue.get_id()
+            new_chain.detach_child(residue_id)
+            new_chain.add(residue)
+
+        return new_chain
 
     def _translate_id(self, id):
         """Translate sequence identifier to tuple form (PRIVATE).
