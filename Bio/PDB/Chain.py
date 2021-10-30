@@ -12,7 +12,6 @@ from Bio.PDB.internal_coords import IC_Chain
 
 from typing import Optional
 import numpy as np
-import copy
 
 class Chain(Entity):
     """Define Chain class.
@@ -97,21 +96,23 @@ class Chain(Entity):
         atoms = list(self.get_atoms())
         atoms_coord = [atom.get_coord() for atom in atoms]
         new_atoms_coord = np.dot(atoms_coord, other)
-        new_chain = copy.deepcopy(self)
+        new_chain = self.copy()
+        for atom in new_chain.get_atoms():
+            atom.transform(other, [0,0,0])
 
-        for residue in new_chain.get_list():
-            for atom in residue.get_list():
-                atom_id = atom.get_serial_number()
-                print(type(atom_id))
-                print(atom_id)
-                new_atom_coord = new_atoms_coord[atom_id]
-                new_atom = atom.copy()
-                new_atom.set_coord(new_atom_coord)
-                residue.detach_child(atom_id)
-                residue.add(new_atom)
-            residue_id = residue.get_id()
-            new_chain.detach_child(residue_id)
-            new_chain.add(residue)
+        # for residue in new_chain.get_list():
+        #     for atom in residue.get_list():
+        #         atom_id = atom.get_serial_number()
+        #         print(type(atom_id))
+        #         print(atom_id)
+        #         new_atom_coord = new_atoms_coord[atom_id]
+        #         new_atom = atom.copy()
+        #         new_atom.set_coord(new_atom_coord)
+        #         residue.detach_child(atom_id)
+        #         residue.add(new_atom)
+        #     residue_id = residue.get_id()
+        #     new_chain.detach_child(residue_id)
+        #     new_chain.add(residue)
 
         return new_chain
 
