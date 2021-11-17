@@ -194,8 +194,7 @@ def _parse_pdb_header_list(header):
         "source": {"1": {"misc": ""}},
         "has_missing_residues": False,
         "missing_residues": [],
-        "chain_ids_to_work_symmetry_operator": [],
-        "symmetry_operator": [],
+        "symmetry_operators": [],
     }
 
     pdbh_dict["structure_reference"] = _get_references(header)
@@ -203,6 +202,7 @@ def _parse_pdb_header_list(header):
     comp_molid = "1"
     last_comp_key = "misc"
     last_src_key = "misc"
+    
 
     for hh in header:
         h = re.sub(r"[\s\n\r]*\Z", "", hh)  # chop linebreaks off
@@ -321,11 +321,17 @@ def _parse_pdb_header_list(header):
                                 1
                             ]
             elif hh.startswith("REMARK 350"):
+                if "BIOMOLECULE:" in tail:
+                    model_dict = {
+                        "operators": [],
+                        "chain_ids": []
+                    }
+                    pdbh_dict["symmetry_operators"].append(model_dict)
                 if "APPLY THE FOLLOWING TO CHAINS:" in tail:
                     chain_id_start_number = 42
                     chain_ids_str = hh[chain_id_start_number:]
                     chain_ids = [id.strip() for id in chain_ids_str.split(sep=", ")]
-                    pdbh_dict["chain_ids_to_work_symmetry_operator"] = chain_ids
+                    pdbh_dict["symmetry_operators"][-1]["chain_ids"] = chain_ids
                 elif re.match("BIOMT\d", tail):
                     tail_word_list = tail.split()
                     the_order_of_matrix = int(tail_word_list[1])  # 1, 2, 3, ...
@@ -340,7 +346,7 @@ def _parse_pdb_header_list(header):
                             ],
                             "shift": [translation_value],
                         }
-                        pdbh_dict["symmetry_operator"].append(matrix_dict)
+                        pdbh_dict["symmetry_operators"][-1]["operators"].append(matrix_dict)
                     else:
                         # symmetric_operator = [
                         #     {
@@ -354,10 +360,10 @@ def _parse_pdb_header_list(header):
                         #     {...},
                         #     {...},
                         # ]
-                        pdbh_dict["symmetry_operator"][the_order_of_matrix - 1][
+                        pdbh_dict["symmetry_operators"][-1]["operators"][the_order_of_matrix - 1][
                             "matrix"
                         ].append(matrix_row)
-                        pdbh_dict["symmetry_operator"][the_order_of_matrix - 1][
+                        pdbh_dict["symmetry_operators"][-1]["operators"][the_order_of_matrix - 1][
                             "shift"
                         ].append(translation_value)
         else:
