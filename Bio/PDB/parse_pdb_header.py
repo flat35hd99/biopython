@@ -328,9 +328,9 @@ def _parse_pdb_header_list(header):
                     pdbh_dict["chain_ids_to_work_symmetry_operator"] = chain_ids
                 elif re.match("BIOMT\d", tail):
                     tail_word_list = tail.split()
-                    the_order_of_matrix = int(tail_word_list[1]) # 1, 2, 3, ...
-                    the_order_of_row = int(tail_word_list[0][-1]) # 1, 2, or 3
-                    matrix_row = [float(tail_word_list[i]) for i in [2,3,4]]
+                    the_order_of_matrix = int(tail_word_list[1])  # 1, 2, 3, ...
+                    the_order_of_row = int(tail_word_list[0][-1])  # 1, 2, or 3
+                    matrix_row = [float(tail_word_list[i]) for i in [2, 3, 4]]
                     translation_value = float(tail_word_list[-1])
 
                     if the_order_of_row == 1:
@@ -338,7 +338,7 @@ def _parse_pdb_header_list(header):
                             "matrix": [
                                 matrix_row,
                             ],
-                            "shift": [translation_value]
+                            "shift": [translation_value],
                         }
                         pdbh_dict["symmetry_operator"].append(matrix_dict)
                     else:
@@ -354,8 +354,12 @@ def _parse_pdb_header_list(header):
                         #     {...},
                         #     {...},
                         # ]
-                        pdbh_dict["symmetry_operator"][the_order_of_matrix - 2]["matrix"].append(matrix_row)
-                        pdbh_dict["symmetry_operator"][the_order_of_matrix - 2]["shift"].append(translation_value)
+                        pdbh_dict["symmetry_operator"][the_order_of_matrix - 1][
+                            "matrix"
+                        ].append(matrix_row)
+                        pdbh_dict["symmetry_operator"][the_order_of_matrix - 1][
+                            "shift"
+                        ].append(translation_value)
         else:
             # print(key)
             pass
